@@ -27,6 +27,24 @@ class CategoryViewController: SwipeTableViewController {
         
         tableView.separatorStyle = .none
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        guard let navBar = navigationController?.navigationBar else { fatalError("Navigation controller does not exist.") }
+        
+        if #available(iOS 13.0, *) {
+            let navBarAppearance = UINavigationBarAppearance()
+            navBarAppearance.configureWithOpaqueBackground()
+            navBarAppearance.titleTextAttributes = [.foregroundColor: UIColor.white]
+            navBarAppearance.largeTitleTextAttributes = [.foregroundColor: UIColor.white]
+            navBarAppearance.backgroundColor =  UIColor(hexString: "1D9BF6")
+            navBar.standardAppearance = navBarAppearance
+            navBar.scrollEdgeAppearance = navBarAppearance
+            navBar.tintColor = .white
+        } else {
+            navBar.backgroundColor = UIColor(hexString: "1D9BF6")
+            navBar.tintColor = .white
+        }
+    }
 
     // MARK: - Table view data source and delegate
 
@@ -40,13 +58,22 @@ class CategoryViewController: SwipeTableViewController {
         
         cell.textLabel?.text = categories?[indexPath.row].name ?? "No Categories Added Yet"
         
-        cell.backgroundColor = UIColor(hexString: categories?[indexPath.row].color ?? "0095FF")
+        if let category = categories?[indexPath.row] {
+            guard let categoryColor = UIColor(hexString: category.color) else { fatalError() }
+            
+            cell.backgroundColor = categoryColor
+            
+            cell.textLabel?.textColor = ContrastColorOf(categoryColor, returnFlat: true)
+        }
+        
+        
         
         return cell
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         performSegue(withIdentifier: "goToItems", sender: self)
+        tableView.deselectRow(at: indexPath, animated: true)
     }
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {

@@ -14,6 +14,8 @@ class ToDoListViewController: SwipeTableViewController {
     
     // MARK: - Properties
     
+    @IBOutlet weak var searchBar: UISearchBar!
+    
     var todoItems: Results<Item>?
     let realm = try! Realm()
     var selectedCategory: Category? {
@@ -28,6 +30,34 @@ class ToDoListViewController: SwipeTableViewController {
         super.viewDidLoad()
 
         tableView.separatorStyle = .none
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        if let colorHex = selectedCategory?.color {
+            title = selectedCategory!.name
+            
+            guard let navBar = navigationController?.navigationBar else { fatalError("Navigation controller does not exist.") }
+            
+            if let navBarColor = UIColor(hexString: colorHex) {
+                
+                if #available(iOS 13.0, *) {
+                    let navBarAppearance = UINavigationBarAppearance()
+                    navBarAppearance.configureWithOpaqueBackground()
+                    navBarAppearance.titleTextAttributes = [NSAttributedString.Key.foregroundColor : ContrastColorOf(navBarColor, returnFlat: true)]
+                    navBarAppearance.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : ContrastColorOf(navBarColor, returnFlat: true)]
+                    navBarAppearance.backgroundColor =  navBarColor
+                    navBar.standardAppearance = navBarAppearance
+                    navBar.scrollEdgeAppearance = navBarAppearance
+                    navBar.tintColor = ContrastColorOf(navBarColor, returnFlat: true)
+                } else {
+                    navBar.backgroundColor = navBarColor
+                    navBar.tintColor = ContrastColorOf(navBarColor, returnFlat: true)
+                    navBar.largeTitleTextAttributes = [NSAttributedString.Key.foregroundColor : ContrastColorOf(navBarColor, returnFlat: true)]
+                }
+                
+//                searchBar.tintColor = navBarColor
+            }
+        }
     }
 
     // MARK: - Table View Delegate and Data source
